@@ -58,16 +58,17 @@ minify_css(){
 if [ -z "$INPUT_DIRECTORY" ]
 then
     echo "I'm here!"
-    find . -type f \(-iname \*.css \) | while read fname
+    find . -type f \( -iname \*.css \) | while read fname
         do
             if [["$fname" != *"min."* ]]; then
-                echo $fname
+                echo "doing css stuff on ${fname}"
                 minify_css $fname
             fi
         done
     find . -type f \( -iname \*.html -o -iname \*.js \) | while read fname
         do
             if [[ "$fname" != *"min."* ]]; then
+                echo "doing js stuff on ${fname}"
                 minify_file $fname
             fi
         done
