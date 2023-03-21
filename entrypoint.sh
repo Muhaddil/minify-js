@@ -49,13 +49,8 @@ minify_file(){
       output_path="${output}${filename}.${extension}"
     fi
     stripcomments -w ${directory}
-    rm_whitespace(${directory})
-    echo "Minified ${directory} > ${output_path}"
-}
-
-rm_whitespace() {
-    directory=$1
     sed -i -e ':a;N;$!ba;s/\n//g;s/\t//g;s/\s\{2,\}/ /g' ${directory}
+    echo "Minified ${directory} > ${output_path}"
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
