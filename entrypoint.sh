@@ -31,8 +31,8 @@ minify_file(){
 }
 
 minify_css(){
-    echo "doing stuff"
     directory=$1
+    ecjo ${directory}
     basename=$(basename $directory);
     extension="${basename##*.}"
     output="";
