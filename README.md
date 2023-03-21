@@ -8,7 +8,7 @@
 ## Version
 [![GitHub Release](https://img.shields.io/github/v/release/jossydevers/minify-js)]()
 
-Github action to minify html, javascript and css files, using [minify](https://www.npmjs.com/package/minify).
+Github action to minify html and javascript files, using [minify](https://www.npmjs.com/package/minify).
 
 ### Usage
 First you need to check out your repository, then configure the Minify-JS job, at the end you can commit to your repository.
