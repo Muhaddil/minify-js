@@ -30,7 +30,7 @@ minify_file(){
 
 if [ -z "$INPUT_DIRECTORY" ]
 then
-    find . -type f -iname \*.css -exec sed -i -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' {} \;
+    find . -type f -iname \*.css -exec sed -i -e ':a;N;$!ba;s/\n//g;s/\t//g;s/\s\{2,\}/ /g' {} \;
     find . -type f \( -iname \*.html -o -iname \*.js \) | while read fname
         do
             if [[ "$fname" != *"min."* ]]; then
@@ -39,5 +39,5 @@ then
         done
 else
     minify_file $INPUT_DIRECTORY
-    find . -type f -iname "$INPUT_DIRECTORY/*.css" -exec sed -i -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' {} \;
+    find . -type f -iname "$INPUT_DIRECTORY/*.css" -exec sed -i -e ':a;N;$!ba;s/\n//g;s/\t//g;s/\s\{2,\}/ /g' {} \;
 fi
