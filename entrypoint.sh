@@ -56,7 +56,7 @@ minify_css(){
 
 if [ -z "$INPUT_DIRECTORY" ]
 then
-    find . -type f -iname "*.css" | while read fname
+    find . -type f \(-iname \*.css \) | while read fname
         do
             if [["$fname" != *"min."* ]]; then
                 minify_css $fname
