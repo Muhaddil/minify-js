@@ -60,7 +60,7 @@ then
     echo "I'm here!"
     find . -type f \( -iname \*.css \) | while read fname
         do
-            if [["$fname" != *"min."* ]]; then
+            if [[ "$fname" != *"min."* ]]; then
                 echo "doing css stuff on ${fname}"
                 minify_css $fname
             fi
