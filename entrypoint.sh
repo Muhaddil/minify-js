@@ -20,6 +20,7 @@ minify_file(){
     rm ${output_path}
 
     if [ "$INPUT_OVERWRITE" = "true" ]
+    then
       output_path="${output}${filename}.${extension}"
     fi
 
