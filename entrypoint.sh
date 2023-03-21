@@ -24,7 +24,7 @@ minify_file(){
 
 if [ -z "$INPUT_DIRECTORY" ]
 then
-    find . -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
+    find . -type f \( -iname \*.html -o -iname \*.js \) | while read fname
         do
             if [[ "$fname" != *"min."* ]]; then
                 minify_file $fname
