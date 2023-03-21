@@ -31,7 +31,6 @@ minify_file(){
 
 minify_css(){
     directory=$1
-    echo $directory
     basename=$(basename $directory);
     extension="${basename##*.}"
     output="";
@@ -51,24 +50,21 @@ minify_css(){
       output_path="${output}${filename}.${extension}"
     fi
     sed -i -e ':a;N;$!ba;s/\n//g;s/\t//g;s/\s\{2,\}/ /g' ${directory}
-    strip-css-comments ${directory} ${output_path}
+    strip-css-comments ${directory} > ${output_path}
     echo "Minified ${directory} > ${output_path}"
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
 then
-    echo "I'm here!"
     find . -type f \( -iname \*.css \) | while read fname
         do
             if [[ "$fname" != *"min."* ]]; then
-                echo "doing css stuff on ${fname}"
                 minify_css $fname
             fi
         done
     find . -type f \( -iname \*.html -o -iname \*.js \) | while read fname
         do
             if [[ "$fname" != *"min."* ]]; then
-                echo "doing js stuff on ${fname}"
                 minify_file $fname
             fi
         done
