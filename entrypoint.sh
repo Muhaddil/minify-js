@@ -16,8 +16,13 @@ minify_file(){
         output="$INPUT_OUTPUT";
     fi
     filename="${basename%.*}"
-    output_path="${output}${filename}.min.${extension}"
-    rm ${output_path}
+    output_path="${output}${filename}.${extension}"
+
+    if [ "${1}" = "-min" ]; then
+      output_path="${output}${filename}.min.${extension}"
+      rm ${output_path}
+    fi
+
     minify ${directory} | sponge ${output_path}
     echo "Minified ${directory} > ${output_path}"
 }
