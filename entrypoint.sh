@@ -50,7 +50,7 @@ minify_css(){
       output_path="${output}${filename}.${extension}"
     fi
     sed -i -e ':a;N;$!ba;s/\n//g;s/\t//g;s/\s\{2,\}/ /g' ${directory}
-    strip-css-comments ${directory} > ${output_path}
+    strip-css-comments ${directory} | sponge ${output_path}
     echo "Minified ${directory} > ${output_path}"
 }
 
