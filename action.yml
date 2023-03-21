@@ -8,9 +8,6 @@ inputs:
   output:
     description: "Path where the minified files will be saved (By default the minified files will be saved in the original file path)"
     required: false
-  exclude_dir:
-    description: "Directory to exclude from minification (By default, no directories are excluded)"
-    required: false
 
 runs:
   using: 'docker'
