@@ -16,11 +16,11 @@ minify_file(){
         output="$INPUT_OUTPUT";
     fi
     filename="${basename%.*}"
-    output_path="${output}${filename}.${extension}"
+    output_path="${output}${filename}.min.${extension}"
+    rm ${output_path}
 
-    if [ "${1}" = "-min" ]; then
-      output_path="${output}${filename}.min.${extension}"
-      rm ${output_path}
+    if [ -z "$OVERWRITE" ]
+      output_path="${output}${filename}.${extension}"
     fi
 
     minify ${directory} | sponge ${output_path}
