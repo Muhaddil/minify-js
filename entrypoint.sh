@@ -6,6 +6,7 @@ apt-get -y install moreutils
 
 minify_file(){
     directory=$1
+    echo ${directory}
     basename=$(basename $directory);
     extension="${basename##*.}"
     output="";
