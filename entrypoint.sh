@@ -19,7 +19,7 @@ minify_file(){
     output_path="${output}${filename}.min.${extension}"
     rm ${output_path}
 
-    if [ "$INPUT_$OVERWRITE" = "true" ]
+    if [ "$INPUT_OVERWRITE" = "true" ]
       output_path="${output}${filename}.${extension}"
     fi
 
