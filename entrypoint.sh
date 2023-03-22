@@ -42,12 +42,13 @@ minify_file(){
       "html")
         minify_html ${directory} ${output_path}
         ;;
-
-      *)
-        echo "Couldn't minify file! (unknown file extension: ${extension} / ${extension_lower})"
-        ;;
     esac
-    echo "Minified ${directory} > ${output_path}"
+    if [ "$extension_lower" = "css" ] || [ "$extension_lower" = "js" ] || [ "$extension_lower" = "html" ]
+    then
+        echo "Minified ${directory} > ${output_path}"
+    else
+        echo "Couldn't minify file! (unknown file extension: ${extension})"
+    fi
 }
 
 minify_js(){
