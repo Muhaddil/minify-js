@@ -75,7 +75,7 @@ else
     dir="."
 fi
 
-find ${dir}/ -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
+find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
     do
         if [[ "$fname" != *".min."* ]]; then
             minify_file $fname
