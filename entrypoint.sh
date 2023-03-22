@@ -73,8 +73,8 @@ minify_html(){
     then
       output_path="${output}${filename}.${extension}"
     fi
-    stripcomments -w ${directory}
-    tr -d '\n\t' < ${directory} | sed ':a;s/\( \) \{1,\}/\1/g;ta' > ${directory}
+    stripcomments ${directory} | sponge ${directory}
+    tr -d '\n\t' < ${directory} | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${directory}
     echo "Minified ${directory} > ${output_path}"
 }
 
