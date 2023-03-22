@@ -66,26 +66,12 @@ minify_html(){
 
 if [ -z "$INPUT_DIRECTORY" ]
 then
-    find . -type f \( -iname \*.js \) | while read fname
+    find . -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
         do
             if [[ "$fname" != *"min."* ]]; then
-                minify_js $fname
-            fi
-        done
-    find . -type f \( -iname \*.css \) | while read fname
-        do
-            if [[ "$fname" != *"min."* ]]; then
-                minify_css $fname
-            fi
-        done
-    find . -type f \( -iname \*.html \) | while read fname
-        do
-            if [[ "$fname" != *"min."* ]]; then
-                minify_html $fname
+                minify_file $fname
             fi
         done
 else
-    minify_js $INPUT_DIRECTORY
-    minify_css $INPUT_DIRECTORY
-    minify_html $INPUT_DIRECTORY
+    minify_file $INPUT_DIRECTORY
 fi
