@@ -24,17 +24,18 @@ minify_file(){
       output_path=$directory
     fi
     extension_lower="${extension}" | tr '[:upper:]' '[:lower:]'
+    echo $extension_lower
     case $extension_lower in
 
-      css)
+      "css")
         minify_css ${directory} ${output_path}
         ;;
 
-      js)
+      "js")
         minify_js ${directory} ${output_path}
         ;;
 
-      html)
+      "html")
         minify_html ${directory} ${output_path}
         ;;
 
