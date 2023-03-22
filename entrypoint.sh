@@ -24,7 +24,7 @@ minify_file(){
       output_path=$directory
     fi
     extension_lower="${extension}" | tr '[:upper:]' '[:lower:]'
-    echo $extension_lower
+    echo $extension
     case $extension_lower in
 
       "css")
