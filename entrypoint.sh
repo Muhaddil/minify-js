@@ -39,7 +39,7 @@ minify_file(){
         ;;
 
       *)
-        echo "Couldn't minify file! (unknown file extension)
+        echo "Couldn't minify file! (unknown file extension)"
         ;;
     esac
     echo "Minified ${directory} > ${output_path}"
