@@ -1,7 +1,6 @@
 #!/bin/bash
 apt-get update
-apt-get -y install nodejs
-apt-get -y install moreutils
+apt-get -y install nodejs npm moreutils
 npm install -g @prasadrajandran/strip-comments-cli
 npm install -g minify
 npm install -g clean-css-cli
