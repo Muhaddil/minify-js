@@ -1,7 +1,7 @@
 #!/bin/bash
 apt-get update
 apt-get -y install moreutils
-npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli
+npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli@4.3.0
 
 minify_file(){
     directory=$1
@@ -58,7 +58,7 @@ minify_js(){
 minify_css(){
     directory=$1
     output_path=$2
-    cleancss -o ${output_path} ${directory} --inline none
+    cleancss -o ${output_path} ${directory} --inline none --skip-rebase
 }
 
 minify_html(){
