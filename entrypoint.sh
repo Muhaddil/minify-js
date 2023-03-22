@@ -3,7 +3,7 @@ apt-get update
 apt-get -y install moreutils
 npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli
 
-minify_js(){
+minify_file(){
     directory=$1
     basename=$(basename $directory);
     extension="${basename##*.}"
@@ -23,57 +23,44 @@ minify_js(){
     then
       output_path="${output}${filename}.${extension}"
     fi
-    minify ${directory} | sponge ${output_path}
+    case ("${extension}" | tr '[:upper:]' '[:lower:]') in
+
+      css)
+        minify_css ${directory} ${output_path}
+        ;;
+
+      js)
+        minify_js ${directory} ${output_path}
+        ;;
+
+      html)
+        minify_html ${directory} ${output_path}
+        ;;
+
+      *)
+        echo "Couldn't minify file! (unknown file extension)
+        ;;
+    esac
     echo "Minified ${directory} > ${output_path}"
+}
+
+minify_js(){
+    directory=$1
+    output_path=$2
+    minify ${directory} | sponge ${output_path}
 }
 
 minify_css(){
     directory=$1
-    basename=$(basename $directory);
-    extension="${basename##*.}"
-    output="";
-    if [ -z "$INPUT_OUTPUT" ]
-    then
-        output="${directory%/*}/"
-    else
-        mkdir -p $INPUT_OUTPUT
-        output="$INPUT_OUTPUT";
-    fi
-    filename="${basename%.*}"
-    output_path="${output}${filename}.min.${extension}"
-    rm ${output_path}
-
-    if [ "$INPUT_OVERWRITE" = "true" ]
-    then
-      output_path="${output}${filename}.${extension}"
-    fi
-    cleancss -o ${directory} ${directory} --inline none
-    echo "Minified ${directory} > ${output_path}"
+    output_path=$2
+    cleancss -o ${output_path} ${directory} --inline none
 }
 
 minify_html(){
     directory=$1
-    basename=$(basename $directory);
-    extension="${basename##*.}"
-    output="";
-    if [ -z "$INPUT_OUTPUT" ]
-    then
-        output="${directory%/*}/"
-    else
-        mkdir -p $INPUT_OUTPUT
-        output="$INPUT_OUTPUT";
-    fi
-    filename="${basename%.*}"
-    output_path="${output}${filename}.min.${extension}"
-    rm ${output_path}
-
-    if [ "$INPUT_OVERWRITE" = "true" ]
-    then
-      output_path="${output}${filename}.${extension}"
-    fi
-    stripcomments ${directory} | sponge ${directory}
-    tr -d '\n\t' < ${directory} | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${directory}
-    echo "Minified ${directory} > ${output_path}"
+    output_path=$2
+    stripcomments ${directory} | sponge ${output_path}
+    tr -d '\n\t' < ${output_path} | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${output_path}
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
