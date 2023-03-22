@@ -23,7 +23,7 @@ minify_file(){
     then
       output_path=$directory
     fi
-    extension_lower="${extension}" | tr '[:upper:]' '[:lower:]'
+    extension_lower="$extension" | tr '[:upper:]' '[:lower:]'
     echo $extension
     case $extension_lower in
 
@@ -40,7 +40,7 @@ minify_file(){
         ;;
 
       *)
-        echo "Couldn't minify file! (unknown file extension)"
+        echo "Couldn't minify file! (unknown file extension: ${extension} / ${extension_lower})"
         ;;
     esac
     echo "Minified ${directory} > ${output_path}"
