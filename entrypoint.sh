@@ -58,7 +58,7 @@ minify_js(){
 minify_css(){
     directory=$1
     output_path=$2
-    cleancss -o ${output_path} ${directory} --inline none --with-rebase false
+    cleancss ${directory} --inline none | sponge ${output_path}
 }
 
 minify_html(){
