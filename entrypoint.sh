@@ -31,7 +31,7 @@ minify_file(){
 
     case $extension_lower in
       "css")
-        minify_css ${directory} "/${output_path}"
+        minify_css ${directory} ${output_path}
         ;;
 
       "js")
@@ -58,7 +58,7 @@ minify_js(){
 minify_css(){
     directory=$1
     output_path=$2
-    cleancss -o ${output_path} ${directory} --inline none
+    cleancss -o ${output_path} ${directory} --inline none --with-rebase false
 }
 
 minify_html(){
