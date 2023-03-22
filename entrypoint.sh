@@ -17,7 +17,11 @@ minify_file(){
     fi
     filename="${basename%.*}"
     output_path="${output}${filename}.min.${extension}"
-    rm ${output_path}
+    if [ -f ${output_path} ]
+    then
+        rm ${output_path}
+    fi
+    
 
     if [ "$INPUT_OVERWRITE" = "true" ]
     then
@@ -69,7 +73,7 @@ if [ -z "$INPUT_DIRECTORY" ]
 then
     find . -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
         do
-            if [[ "$fname" != *"min."* ]]; then
+            if [[ "$fname" != *".min."* ]]; then
                 minify_file $fname
             fi
         done
