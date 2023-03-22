@@ -65,7 +65,7 @@ minify_html(){
     directory=$1
     output_path=$2
     stripcomments ${directory} | sponge ${output_path}
-    tr -d '\n\t' < ${output_path} | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${output_path}
+    tr '\n' ' ' < ${output_path} | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${output_path}
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
