@@ -27,7 +27,7 @@ jobs:
         with:
           directory: 'src/component.js' # (OPTIONAL)
           output: 'minify/src/' # (OPTIONAL)
-          overwrite: true (OPTIONAL)
+          overwrite: true # (OPTIONAL)
           
       # Auto-commit to repository
       - uses: stefanzweifel/git-auto-commit-action@v4
