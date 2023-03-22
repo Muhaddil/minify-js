@@ -23,7 +23,8 @@ minify_file(){
     then
       output_path="${output}${filename}.${extension}"
     fi
-    case ("${extension}" | tr '[:upper:]' '[:lower:]') in
+    extension_lower="${extension}" | tr '[:upper:]' '[:lower:]'
+    case $extension_lower in
 
       css)
         minify_css ${directory} ${output_path}
