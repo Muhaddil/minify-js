@@ -23,8 +23,8 @@ minify_file(){
     then
       output_path=$directory
     fi
-    extension_lower="$extension" | tr '[:upper:]' '[:lower:]'
-    echo $extension
+    extension_lower=$(echo "${extension}" | tr '[:upper:]' '[:lower:]')
+
     case $extension_lower in
 
       "css")
