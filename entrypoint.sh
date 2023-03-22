@@ -30,7 +30,6 @@ minify_file(){
     extension_lower=$(echo "${extension}" | tr '[:upper:]' '[:lower:]')
 
     case $extension_lower in
-
       "css")
         minify_css ${directory} ${output_path}
         ;;
@@ -42,13 +41,12 @@ minify_file(){
       "html")
         minify_html ${directory} ${output_path}
         ;;
-    esac
-    if [ "$extension_lower" = "css" ] || [ "$extension_lower" = "js" ] || [ "$extension_lower" = "html" ]
-    then
-        echo "Minified ${directory} > ${output_path}"
-    else
+      *)
         echo "Couldn't minify file! (unknown file extension: ${extension})"
-    fi
+        return 1
+    esac
+
+    echo "Minified ${directory} > ${output_path}"
 }
 
 minify_js(){
