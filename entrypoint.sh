@@ -31,7 +31,7 @@ minify_file(){
 
     case $extension_lower in
       "css")
-        minify_css ${directory} ${output_path}
+        minify_html ${directory} ${output_path} # use html minification until clean-css-cli import paths are fixed
         ;;
 
       "js")
