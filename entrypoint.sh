@@ -1,6 +1,6 @@
 #!/bin/bash
 npm install -g @prasadrajandran/strip-comments-cli
-npm install -g uglify-js
+npm install -g minify
 npm install -g clean-css-cli
 apt-get update
 apt-get -y install moreutils
@@ -25,7 +25,7 @@ minify_js(){
     then
       output_path="${output}${filename}.${extension}"
     fi
-    uglifyjs --compress --mangle --output ${output_path} -- ${directory}
+    minify ${directory} | sponge ${output_path}
     echo "Minified ${directory} > ${output_path}"
 }
 
@@ -74,7 +74,7 @@ minify_html(){
       output_path="${output}${filename}.${extension}"
     fi
     stripcomments -w ${directory}
-    sed -i -e ':a;N;$!ba;s/\n//g;s/\t//g;s/\s\{2,\}/ /g' ${directory}
+    tr -d '\n\t' < ${directory} | sed ':a;s/\( \) \{1,\}/\1/g;ta' > ${directory}
     echo "Minified ${directory} > ${output_path}"
 }
 
