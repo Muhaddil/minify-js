@@ -72,7 +72,7 @@ if [ -z "$INPUT_DIRECTORY" ]
 then
     dir=$INPUT_DIRECTORY
 else
-    dir="."
+    dir=""
 fi
 
 find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
