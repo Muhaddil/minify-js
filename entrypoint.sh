@@ -21,7 +21,7 @@ minify_file(){
 
     if [ "$INPUT_OVERWRITE" = "true" ]
     then
-      output_path="${output}${filename}.${extension}"
+      output_path=$directory
     fi
     extension_lower="${extension}" | tr '[:upper:]' '[:lower:]'
     case $extension_lower in
