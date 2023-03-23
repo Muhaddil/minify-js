@@ -8,6 +8,6 @@ const regex = /(?:\t|\r\n|\r|\n)+/g;
 const whiteSpaceRegex = /(?:\s)+/g;
 
 const dom = parse(inputFileContent).removeWhitespace();
-const output = dom.toString().replace(regex, ' ').replace(whiteSpaceRegex, ' ');
+const output = dom.toString();
 
 console.log(output);
