@@ -68,7 +68,7 @@ minify_css(){
 minify_html(){
     directory=$1
     output_path=$2
-    html-minifier-terser --collapse-whitespace --conservativeCollapse --remove-comments --minify-css true --minify-js true ${directory} | sponge ${output_path}
+    html-minifier-terser --collapse-whitespace --conservative-collapse --remove-comments --minify-css true --minify-js true ${directory} | sponge ${output_path}
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
