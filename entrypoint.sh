@@ -1,5 +1,6 @@
 #!/bin/bash
 current_dir=$(pwd)
+echo $current_dir
 apt-get update
 apt-get -y install moreutils
 echo "Installing NodeJS packages ..."
