@@ -4,6 +4,7 @@ description: 'Github action to minify html, javascript and css files'
 runs:
   using: 'composite'
   steps:
+    - uses: actions/checkout@v3
     - uses: denoland/setup-deno@v1
       with:
         deno-version: v1.32.0
