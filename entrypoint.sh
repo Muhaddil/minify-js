@@ -1,7 +1,7 @@
 #!/bin/bash
 apt-get update
 apt-get -y install moreutils
-npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli
+npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli fast-xml-parser
 
 minify_file(){
     directory=$1
@@ -31,7 +31,7 @@ minify_file(){
 
     case $extension_lower in
       "css")
-        minify_html ${directory} ${output_path} # use html minification until clean-css-cli import paths are fixed
+        minify_css ${directory} ${output_path} # use html minification until clean-css-cli import paths are fixed
         ;;
 
       "js")
@@ -58,14 +58,16 @@ minify_js(){
 minify_css(){
     directory=$1
     output_path=$2
-    cleancss ${directory} --inline none | sponge ${output_path}
+    # The next two lines are a temporary workaround while the clean-css package doesn't properly rebase URLs. Once that is fixed, the cleancss command should be used.
+    stripcomments ${directory} | sponge ${output_path}
+    tr '\n' ' ' < ${output_path} | tr -d '\t' | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${output_path}
+    #cleancss ${directory} --inline none | sponge ${output_path}
 }
 
 minify_html(){
     directory=$1
     output_path=$2
-    stripcomments ${directory} | sponge ${output_path}
-    tr '\n' ' ' < ${output_path} | tr -d '\t' | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${output_path}
+    node minify_html.js ${directory} ${output_path}
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
