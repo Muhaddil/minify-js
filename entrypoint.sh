@@ -69,7 +69,7 @@ minify_css(){
 minify_html(){
     directory=$1
     output_path=$2
-    deno run --allow-read /minify_html.js ${directory} | sponge ${output_path}
+    deno run --allow-read minify_html.js ${directory} | sponge ${output_path}
     html-minifier-terser --collapse-whitespace --conservative-collapse --remove-comments --minify-css true --minify-js true ${output_path} | sponge ${output_path}
 }
 
