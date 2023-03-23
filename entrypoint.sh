@@ -1,7 +1,7 @@
 #!/bin/bash
 apt-get update
 apt-get -y install moreutils
-npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli fast-xml-parser
+npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli node-html-parser
 
 minify_file(){
     directory=$1

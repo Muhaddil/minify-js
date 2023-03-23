@@ -1,31 +1,13 @@
 const fs = require('fs');
-const { XMLParser, XMLBuilder } = require("fast-xml-parser");
+const HTMLParser = require('node-html-parser');
 
 const inputFile = process.argv[2];
 
 const inputFileContent = fs.readFileSync(inputFile, 'utf8');
 
-const parsingOptions = {
-	ignoreAttributes: false,
-	unpairedTags: ["hr", "br", "link", "meta"],
-	stopNodes: ["*.pre", "*.script"],
-	processEntities: true,
-	htmlEntities: true
-}
+const regex = /(?:\t+|\r\n|\r|\n)+/g;
 
-const parser = new XMLParser(parsingOptions);
-const obj = parser.parse(inputFileContent);
-
-const builderOptions = {
-	ignoreAttributes: false,
-	format: false,
-	preserveOrder: true,
-	suppressEmptyNode: false,
-	unpairedTags: ["hr", "br", "link", "meta", "img", "input"],
-	stopNodes: ["*.pre", "*.script"],
-}
-
-const builder = new XMLBuilder(builderOptions);
-const output = builder.build(obj);
+const dom = HTMLParser.parse(inputFileContent).removeWhitespace();
+const output = dom.toString().replace(regex, ' ');
 
 process.stdout.write(output);
