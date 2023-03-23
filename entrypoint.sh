@@ -1,6 +1,7 @@
 #!/bin/bash
 apt-get update
-apt-get -y install moreutils
+apt-get -y install moreutils unzip
+curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh
 echo "Installing NodeJS packages ..."
 npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli
 
