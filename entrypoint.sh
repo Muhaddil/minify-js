@@ -73,7 +73,9 @@ minify_html(){
     directory=$1
     output_path=$2
     stripcomments ${directory} | sponge ${output_path}
+	cd /
     node /minify_html.js ${output_path} | sponge ${output_path}
+	cd $current_dir
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
