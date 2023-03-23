@@ -1,17 +1,6 @@
 name: 'Minify-JS Action'
 description: 'Github action to minify html, javascript and css files'
 
-inputs:
-  directory:
-    description: "File to minify, (By default it minifies in all routes)"
-    required: false
-  output:
-    description: "Path where the minified files will be saved (By default the minified files will be saved in the original file path)"
-    required: false
-  overwrite:
-    description: "If true, overwrites the original file instead of creating a new minified file"
-    required: false
-
 runs:
   using: 'composite'
   steps:
@@ -20,8 +9,6 @@ runs:
       with:
         deno-version: v1.32.0
     - uses: ./minify
-      with:
-        overwrite: ${{ inputs.overwrite }}
 
 branding:
   icon: "box"
