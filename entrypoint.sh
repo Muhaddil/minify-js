@@ -1,9 +1,8 @@
 #!/bin/bash
 apt-get update
 apt-get -y install moreutils unzip
-curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh
 echo "Installing NodeJS packages ..."
-npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli
+npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli html-minifier
 
 minify_file(){
     directory=$1
@@ -69,8 +68,7 @@ minify_css(){
 minify_html(){
     directory=$1
     output_path=$2
-    stripcomments ${directory} | sponge ${output_path}
-    deno run --allow-read /minify_html.js ${output_path} | sponge ${output_path}
+	html-minifier --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-tag-whitespace --minify-css true --minify-js true
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
