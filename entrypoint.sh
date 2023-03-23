@@ -68,8 +68,10 @@ minify_html(){
     directory=$1
     output_path=$2
     stripcomments ${directory} | sponge ${output_path}
-    node /minify_html.js ${output_path} | sponge ${output_path}
+    node minify_html.js ${output_path} | sponge ${output_path}
 }
+
+cp /minify_html.js ./
 
 if [ -z "$INPUT_DIRECTORY" ]
 then
@@ -84,3 +86,5 @@ find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | whil
             minify_file $fname
         fi
     done
+
+cp minify_html.js /
