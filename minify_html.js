@@ -4,9 +4,9 @@ const inputFile = Deno.args[0];
 
 const inputFileContent = Deno.readTextFileSync(inputFile);
 
-const regex = /(?:\t+|\r\n|\r|\n)+/g;
+const regex = /(?:\s|\r\n|\r|\n)+/g;
 
 const dom = parse(inputFileContent).removeWhitespace();
-const output = dom.toString().replace(regex, ' ');
+const output = dom.toString().replaceAll('\t', '').replace(regex, ' ');
 
 console.log(output);
