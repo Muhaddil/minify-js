@@ -72,7 +72,7 @@ minify_html(){
 }
 
 cp /minify_html.js ./
-
+ls
 if [ -z "$INPUT_DIRECTORY" ]
 then
     dir=$INPUT_DIRECTORY
