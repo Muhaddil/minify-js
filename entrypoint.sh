@@ -1,12 +1,10 @@
 #!/bin/bash
 current_dir=$(pwd)
-cd /
 apt-get update
 apt-get -y install moreutils
 echo "Installing NodeJS packages ..."
 npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli
 npm install node-html-parser
-cd $current_dir
 
 minify_file(){
     directory=$1
@@ -74,8 +72,10 @@ minify_html(){
     output_path=$2
     stripcomments ${directory} | sponge ${output_path}
 	cd /
-    node /minify_html.js ${output_path} | sponge ${output_path}
+	echo $(pwd)
+    node minify_html.js ${output_path} | sponge ${output_path}
 	cd $current_dir
+	echo $(pwd)
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
