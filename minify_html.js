@@ -14,7 +14,7 @@ const parsingOptions = {
 }
 
 const parser = new XMLParser(parsingOptions);
-parser.parse(inputFileContent);
+const obj = parser.parse(inputFileContent);
 
 const builderOptions = {
 	ignoreAttributes: false,
@@ -26,6 +26,6 @@ const builderOptions = {
 }
 
 const builder = new XMLBuilder(builderOptions);
-const output = builder.build(result);
+const output = builder.build(obj);
 
 process.stdout.write(output);
