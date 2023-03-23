@@ -2,7 +2,7 @@
 apt-get update
 apt-get -y install moreutils unzip
 echo "Installing NodeJS packages ..."
-npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli html-minifier
+npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli html-minifier-terser
 
 minify_file(){
     directory=$1
@@ -68,7 +68,7 @@ minify_css(){
 minify_html(){
     directory=$1
     output_path=$2
-    html-minifier --collapse-whitespace --remove-comments --remove-tag-whitespace --minify-css true --minify-js true ${directory} | sponge ${output_path}
+    html-minifier-terser --collapse-whitespace --conservativeCollapse --remove-comments --minify-css true --minify-js true ${directory} | sponge ${output_path}
 }
 
 if [ -z "$INPUT_DIRECTORY" ]
