@@ -1,5 +1,5 @@
 const fs = require('fs');
-const HTMLParser = require('node-html-parser');
+const HTMLParser = require('/node-html-parser');
 
 const inputFile = process.argv[2];
 
