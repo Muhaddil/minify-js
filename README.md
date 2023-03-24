@@ -17,9 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
+      - uses: actions/checkout@v3
 
       # Job for Minify-JS
       - name: Minify-JS Action
@@ -38,8 +36,8 @@ jobs:
 
 ## Changes in this Fork
 This fork is adjusted to a very specific use case and style of writing web apps. It may not work for you or work in unexpected ways. All changes in this fork can be found below:
-* CSS minification is done with the cleancss package
+* CSS minification is done with the cssnano package
 * Don't inline import statements in CSS files
 * Add option to overwrite existing files instead of using separate `.min` files
-* HTML files are just stripped of all comments, newlines, tabs and spaces if there are more than two after each other.
+* HTML files are minified with the html-minifier-terser package
 * NodeJS version bumped from 14 to 16
