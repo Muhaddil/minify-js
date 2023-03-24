@@ -1,6 +1,6 @@
 #!/bin/bash
 apt-get update
-apt-get -y install moreutils unzip
+apt-get -y install moreutils
 echo "Installing NodeJS packages ..."
 npm install -g minify html-minifier-terser postcss-cli cssnano
 
@@ -32,7 +32,7 @@ minify_file(){
 
     case $extension_lower in
       "css")
-        minify_css ${directory} ${output_path} # use html minification until clean-css-cli import paths are fixed
+        minify_css ${directory} ${output_path}
         ;;
 
       "js")
