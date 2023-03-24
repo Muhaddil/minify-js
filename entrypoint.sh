@@ -2,7 +2,7 @@
 apt-get update
 apt-get -y install moreutils unzip
 echo "Installing NodeJS packages ..."
-npm install -g @prasadrajandran/strip-comments-cli minify clean-css-cli html-minifier-terser
+npm install -g minify html-minifier-terser postcss-cli cssnano
 
 minify_file(){
     directory=$1
@@ -59,10 +59,7 @@ minify_js(){
 minify_css(){
     directory=$1
     output_path=$2
-    # The next two lines are a temporary workaround while the clean-css package doesn't properly rebase URLs. Once that is fixed, the cleancss command should be used.
-    stripcomments ${directory} | sponge ${output_path}
-    tr '\n' ' ' < ${output_path} | tr -d '\t' | sed ':a;s/\( \) \{1,\}/\1/g;ta' | sponge ${output_path}
-    #cleancss ${directory} --inline none | sponge ${output_path}
+	npx postcss ${directory} --use cssnano --no-map | sponge ${output_path}
 }
 
 minify_html(){

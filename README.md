@@ -1,9 +1,9 @@
 # Minify-JS Action
 
-Github action to minify HTML, Javascript and CSS files, using [minify](https://www.npmjs.com/package/minify), [clean-css-cli](https://www.npmjs.com/package/clean-css-cli) and some custom code.
+Github action to minify HTML, Javascript and CSS files, using [html-minifier-terser](https://www.npmjs.com/package/html-minifier-terser), [minify](https://www.npmjs.com/package/minify) and [cssnano](https://www.npmjs.com/package/cssnano).
 
 ## Usage
-First you need to check out your repository, then configure the Minify-JS job, at the end you can commit to your repository.
+First you need to check out your repository, then configure the Minify-JS job, at the end you can commit to your repository.  
 Below is an example of how to do all of this.
 
 ```yaml
