@@ -17,9 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
+      - uses: actions/checkout@v3
 
       # Job for Minify-JS
       - name: Minify-JS Action
