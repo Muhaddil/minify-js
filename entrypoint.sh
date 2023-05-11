@@ -2,7 +2,7 @@
 apt-get update
 apt-get -y install moreutils
 echo "Installing NodeJS packages ..."
-npm install -g minify html-minifier-terser postcss-cli cssnano
+npm install -g minify html-minifier-terser postcss-cli cssnano babel-plugin-transform-merge-sibling-variables
 
 minify_file(){
     directory=$1
