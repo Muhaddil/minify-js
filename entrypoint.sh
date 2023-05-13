@@ -70,9 +70,9 @@ minify_html(){
 
 if [ -z "$INPUT_DIRECTORY" ]
 then
-    dir=$INPUT_DIRECTORY
-else
     dir="."
+else
+    dir=$INPUT_DIRECTORY
 fi
 
 find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
