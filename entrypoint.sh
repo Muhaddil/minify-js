@@ -14,7 +14,7 @@ minify_file(){
         output="${directory%/*}/"
     else
         mkdir -p $INPUT_OUTPUT
-        output="$INPUT_OUTPUT";
+        output="$INPUT_OUTPUT"
     fi
     filename="${basename%.*}"
     output_path="${output}${filename}.min.${extension}"
