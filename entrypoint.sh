@@ -24,7 +24,7 @@ minify_file(){
     fi
     
 
-    if [ "$INPUT_OVERWRITE" = "true" ]
+    if [ "$INPUT_OVERWRITE" == "true" ]
     then
       output_path=$directory
     fi
@@ -59,7 +59,7 @@ minify_js(){
 minify_css(){
     directory=$1
     output_path=$2
-	npx postcss ${directory} --use cssnano --no-map | sponge ${output_path}
+    npx postcss ${directory} --use cssnano --no-map | sponge ${output_path}
 }
 
 minify_html(){
