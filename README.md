@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Job for Minify-JS
       - name: Minify-JS Action
