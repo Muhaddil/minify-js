@@ -40,4 +40,4 @@ This fork is adjusted to a very specific use case and style of writing web apps.
 * Don't inline import statements in CSS files
 * Add option to overwrite existing files instead of using separate `.min` files
 * HTML files are minified with the html-minifier-terser package
-* NodeJS version bumped from 14 to 16
+* NodeJS version bumped from 14 to 20
