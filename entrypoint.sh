@@ -1,8 +1,4 @@
 #!/bin/bash
-apt-get update
-apt-get -y install moreutils
-echo "Installing NodeJS packages ..."
-npm install -g minify@9.2.0 html-minifier-terser postcss-cli cssnano
 
 minify_file(){
     directory=$1
