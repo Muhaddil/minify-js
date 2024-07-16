@@ -55,6 +55,7 @@ minify_js(){
       cat "${directory}" | sponge ${output_path}
 
       echo "${directory}"
+      stat "${directory}"
       cat "${directory}"
     fi
 }
