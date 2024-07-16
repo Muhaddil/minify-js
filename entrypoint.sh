@@ -50,13 +50,18 @@ minify_js(){
     directory=$1
     output_path=$2
   	tmp_path="tmp"
+    # This minify package is not really the smartest one. For example, it fails when it encounters top-level await.
+    # To circumvent this, we put the resulting data into a temp file, then check whether that file is not empty.
+    # If it is not empty, we use transfer the temp file into the output file.
+    # If it is empty, we use the non-minified file instead.
     minify ${directory} | sponge ${tmp_path}
-    if [ ! -s "${tmp_path}" ]; then
+    if [ -s "${tmp_path}" ]; then
+      cat ${tmp_path} | sponge ${output_path}
+	  else
       echo "Minification failed, using raw file instead!"
       cat ${directory} | sponge ${output_path}
-	  else
-      cat ${tmp_path} | sponge ${output_path}
     fi
+    rm ${tmp_path}
 }
 
 minify_css(){
