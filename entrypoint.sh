@@ -50,6 +50,9 @@ minify_js(){
     directory=$1
     output_path=$2
     minify ${directory} | sponge ${output_path}
+    if [ ! -s "${directory}" ]; then
+      cat ${directory} > ${output_path}
+    fi
 }
 
 minify_css(){
