@@ -18,7 +18,7 @@ minify_file(){
     then
         rm ${output_path}
     fi
-    
+
 
     if [ "$INPUT_OVERWRITE" == "true" ]
     then
@@ -49,8 +49,7 @@ minify_file(){
 minify_js(){
     directory=$1
     output_path=$2
-    minify ${directory} | sponge ${output_path}
-}
+    minify "${directory}" | sponge "${output_path}" || sponge "${directory}"}
 
 minify_css(){
     directory=$1
