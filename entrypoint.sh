@@ -49,6 +49,8 @@ minify_file(){
 minify_js(){
     directory=$1
     output_path=$2
+      stat "${directory}"
+      cat "${directory}"
     minify ${directory} | sponge ${output_path}
     if [ ! -s "${output_path}" ]; then
       echo "Minification failed, using raw file instead!"
