@@ -49,15 +49,7 @@ minify_file(){
 minify_js(){
     directory=$1
     output_path=$2
-    if minify "${directory}"; then
-        # Minify succeeded, use the specified output path
-        echo "minifying..."
-        minify "${directory}" | sponge "${output_path}"
-    else
-        # Minify failed, put raw file into output path
-        echo "Minify failed, using non-minified file!"
-        cat "${directory}" | sponge "${output_path}"
-    fi
+    minify ${directory} | sponge ${output_path}
 }
 
 minify_css(){
