@@ -49,7 +49,13 @@ minify_file(){
 minify_js(){
     directory=$1
     output_path=$2
-    minify "${directory}" | sponge "${output_path}" || sponge "${directory}"
+    if minify "${directory}"; then
+        # Minify succeeded, use the specified output path
+        minify "${directory}" | sponge "${output_path}"
+    else
+        # Minify failed, use the directory as the output path
+        cat "${directory}" | sponge "${output_path}"
+    fi
 }
 
 minify_css(){
