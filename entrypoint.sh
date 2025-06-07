@@ -54,9 +54,9 @@ minify_js(){
 }
 
 minify_css(){
-    directory=$1
-    output_path=$2
-    npx postcss ${directory} --use cssnano --no-map | sponge ${output_path}
+    local input_file=$1
+    local output_path=$2
+    lightningcss --minify --output-file "$output_path" "$input_file" || cp "$input_file" "$output_path"
 }
 
 minify_html(){
