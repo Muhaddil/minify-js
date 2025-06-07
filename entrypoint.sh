@@ -47,21 +47,10 @@ minify_file(){
 }
 
 minify_js(){
-    directory=$1
-    output_path=$2
-  	tmp_path="tmp"
-    # This minify package is not really the smartest one. For example, it fails when it encounters top-level await.
-    # To circumvent this, we put the resulting data into a temp file, then check whether that file is not empty.
-    # If it is not empty, we use transfer the temp file into the output file.
-    # If it is empty, we use the non-minified file instead.
-    minify ${directory} | sponge ${tmp_path}
-    if [ -s "${tmp_path}" ]; then
-      cat ${tmp_path} | sponge ${output_path}
-	  else
-      echo "Minification failed, using raw file instead!"
-      cat ${directory} | sponge ${output_path}
-    fi
-    rm ${tmp_path}
+    local input_file=$1
+    local output_path=$2
+
+    esbuild "${input_file}" --minify --outfile="${output_path}" || cp "${input_file}" "${output_path}"
 }
 
 minify_css(){
@@ -85,4 +74,4 @@ fi
 
 export -f minify_file minify_js minify_css minify_html
 
-find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) ! -name "*.min.*" | parallel -j 4 minify_file {}
+find "$dir" -type f \( -iname '*.html' -o -iname '*.js' -o -iname '*.css' \) ! -name '*.min.*' | parallel --bar -j $(nproc) minify_file {}
