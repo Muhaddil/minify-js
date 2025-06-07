@@ -74,4 +74,4 @@ fi
 
 export -f minify_file minify_js minify_css minify_html
 
-find "$dir" -type f \( -iname '*.html' -o -iname '*.js' -o -iname '*.css' \) ! -name '*.min.*' | parallel --bar -j $(nproc) minify_file {}
+find "$dir" -type f \( -iname '*.html' -o -iname '*.js' -o -iname '*.css' \) ! -name '*.min.*' | parallel -j $(nproc) minify_file {}
