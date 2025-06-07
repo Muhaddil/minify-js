@@ -12,13 +12,13 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Colores
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # Sin color
+NC='\033[0m'
 
-# Variables globales para seguimiento
 SUCCESS_FILE=$(mktemp)
 FAIL_FILE=$(mktemp)
 declare -i SUCCESS_COUNT=0
@@ -31,7 +31,7 @@ trap cleanup EXIT
 
 check_dependencies() {
     local missing=0
-    for cmd in minify npx postcss cssnano sponge html-minifier-terser; do
+    for cmd in minify postcss cssnano sponge html-minifier-terser; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
             echo -e "${RED}Falta la dependencia: $cmd${NC}" >&2
             missing=1
@@ -54,15 +54,15 @@ minify_js() {
 
     if [ $status -eq 0 ] && [ -s "$tmp_file" ]; then
         mv "$tmp_file" "$output"
+        rm -f "$error_log"
         return 0
     else
         echo -e "${YELLOW}Error detallado:${NC}" >&2
         cat "$error_log" >&2
         cp "$input" "$output"
-        rm -f "$tmp_file"
+        rm -f "$tmp_file" "$error_log"
         return 1
     fi
-    rm -f "$error_log"
 }
 
 minify_css() {
@@ -71,17 +71,18 @@ minify_css() {
     local error_log=$(mktemp)
     local status=0
 
-    npx postcss "$input" --use cssnano --no-map 2> "$error_log" | sponge "$output" || status=$?
+    postcss "$input" --use cssnano --no-map 2> "$error_log" | sponge "$output" || status=$?
 
     if [ $status -eq 0 ]; then
+        rm -f "$error_log"
         return 0
     else
         echo -e "${YELLOW}Error detallado:${NC}" >&2
         cat "$error_log" >&2
         cp "$input" "$output"
+        rm -f "$error_log"
         return 1
     fi
-    rm -f "$error_log"
 }
 
 minify_html() {
@@ -99,14 +100,15 @@ minify_html() {
         "$input" 2> "$error_log" | sponge "$output" || status=$?
 
     if [ $status -eq 0 ]; then
+        rm -f "$error_log"
         return 0
     else
         echo -e "${YELLOW}Error detallado:${NC}" >&2
         cat "$error_log" >&2
         cp "$input" "$output"
+        rm -f "$error_log"
         return 1
     fi
-    rm -f "$error_log"
 }
 
 minify_file() {
