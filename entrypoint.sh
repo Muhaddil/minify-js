@@ -186,7 +186,7 @@ print_summary() {
 main() {
     check_dependencies
     local search_dir="${INPUT_DIRECTORY:-.}"
-    local files=( $(find "$search_dir" -type f \( -iname '*.html' -o -iname '*.js' -o -iname '*.css' \) | grep -v ".min.") )
+    mapfile -t files < <(find "$search_dir" -type f \( -iname '*.html' -o -iname '*.js' -o -iname '*.css' \) | grep -v ".min.")
 
     if [ "${#files[@]}" -eq 0 ]; then
         echo -e "${YELLOW}No se encontraron archivos para minificar.${NC}" >&2
@@ -209,7 +209,7 @@ main() {
 
     print_summary
 
-    if [ $FAIL_COUNT -gt 0 ]; then
+    if [ "$FAIL_COUNT" -gt 0 ]; then
         exit 1
     fi
 }
