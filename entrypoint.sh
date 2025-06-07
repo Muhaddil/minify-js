@@ -18,18 +18,95 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # Sin color
 
+# Variables globales para seguimiento
+SUCCESS_FILE=$(mktemp)
+FAIL_FILE=$(mktemp)
+declare -i SUCCESS_COUNT=0
+declare -i FAIL_COUNT=0
+
+cleanup() {
+    rm -f "$SUCCESS_FILE" "$FAIL_FILE"
+}
+trap cleanup EXIT
+
 check_dependencies() {
     local missing=0
     for cmd in minify npx postcss cssnano sponge html-minifier-terser; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
-            echo -e "${RED}Falta la dependencia: $cmd${NC}"
+            echo -e "${RED}Falta la dependencia: $cmd${NC}" >&2
             missing=1
         fi
     done
     if [ "$missing" -eq 1 ]; then
-        echo -e "${RED}Instala las dependencias requeridas y vuelve a intentarlo.${NC}"
+        echo -e "${RED}Instala las dependencias requeridas y vuelve a intentarlo.${NC}" >&2
         exit 1
     fi
+}
+
+minify_js() {
+    local input="$1"
+    local output="$2"
+    local tmp_file=$(mktemp)
+    local error_log=$(mktemp)
+    local status=0
+
+    minify "$input" > "$tmp_file" 2> "$error_log" || status=$?
+
+    if [ $status -eq 0 ] && [ -s "$tmp_file" ]; then
+        mv "$tmp_file" "$output"
+        return 0
+    else
+        echo -e "${YELLOW}Error detallado:${NC}" >&2
+        cat "$error_log" >&2
+        cp "$input" "$output"
+        rm -f "$tmp_file"
+        return 1
+    fi
+    rm -f "$error_log"
+}
+
+minify_css() {
+    local input="$1"
+    local output="$2"
+    local error_log=$(mktemp)
+    local status=0
+
+    npx postcss "$input" --use cssnano --no-map 2> "$error_log" | sponge "$output" || status=$?
+
+    if [ $status -eq 0 ]; then
+        return 0
+    else
+        echo -e "${YELLOW}Error detallado:${NC}" >&2
+        cat "$error_log" >&2
+        cp "$input" "$output"
+        return 1
+    fi
+    rm -f "$error_log"
+}
+
+minify_html() {
+    local input="$1"
+    local output="$2"
+    local error_log=$(mktemp)
+    local status=0
+
+    html-minifier-terser \
+        --collapse-whitespace \
+        --conservative-collapse \
+        --remove-comments \
+        --minify-css true \
+        --minify-js true \
+        "$input" 2> "$error_log" | sponge "$output" || status=$?
+
+    if [ $status -eq 0 ]; then
+        return 0
+    else
+        echo -e "${YELLOW}Error detallado:${NC}" >&2
+        cat "$error_log" >&2
+        cp "$input" "$output"
+        return 1
+    fi
+    rm -f "$error_log"
 }
 
 minify_file() {
@@ -39,6 +116,7 @@ minify_file() {
     local name="${filename%.*}"
     local output_dir="${INPUT_OUTPUT:-${filepath%/*}}"
     local output_path="${output_dir}/${name}.min.${extension,,}"
+    local minify_status=0
 
     mkdir -p "$output_dir"
 
@@ -53,15 +131,17 @@ minify_file() {
         return 0
     fi
 
+    echo -e "Procesando: $filepath" >&2
+
     case "${extension,,}" in
         css)
-            minify_css "$filepath" "$output_path"
+            minify_css "$filepath" "$output_path" || minify_status=1
             ;;
         js)
-            minify_js "$filepath" "$output_path"
+            minify_js "$filepath" "$output_path" || minify_status=1
             ;;
         html)
-            minify_html "$filepath" "$output_path"
+            minify_html "$filepath" "$output_path" || minify_status=1
             ;;
         *)
             echo -e "${YELLOW}Omitiendo: Extensión no soportada '$extension'${NC}" >&2
@@ -69,49 +149,35 @@ minify_file() {
             ;;
     esac
 
-    echo -e "${GREEN}✔ Minificado: $filepath → $output_path${NC}" >&2
-}
-
-minify_js() {
-    local input="$1"
-    local output="$2"
-    local tmp_file=$(mktemp)
-
-    if minify "$input" > "$tmp_file" && [ -s "$tmp_file" ]; then
-        mv "$tmp_file" "$output"
-        echo -e "${GREEN}✔ Minified JS: $input → $output${NC}" >&2
+    if [ $minify_status -eq 0 ]; then
+        echo -e "${GREEN}✔ Minificado correctamente: $filepath → $output_path${NC}" >&2
+        echo "$filepath" >> "$SUCCESS_FILE"
+        return 0
     else
-        echo -e "${YELLOW}⚠ Falló minificación JS para '$input'. Copiando original.${NC}" >&2
-        cp "$input" "$output"
-        rm -f "$tmp_file"
+        echo -e "${RED}✘ Error minificando: $filepath (se mantuvo original)${NC}" >&2
+        echo "$filepath" >> "$FAIL_FILE"
+        return 1
     fi
 }
 
-minify_css() {
-    local input="$1"
-    local output="$2"
-    if npx postcss "$input" --use cssnano --no-map | sponge "$output"; then
-        echo -e "${GREEN}✔ Minified CSS: $input → $output${NC}" >&2
-    else
-        echo -e "${YELLOW}⚠ Falló minificación CSS para '$input'. Copiando original.${NC}" >&2
-        cp "$input" "$output"
-    fi
-}
+print_summary() {
+    echo -e "\n${BLUE}===== RESUMEN DE MINIFICACIÓN =====${NC}"
+    echo -e "${GREEN}Archivos minificados correctamente: ${SUCCESS_COUNT}${NC}"
 
-minify_html() {
-    local input="$1"
-    local output="$2"
-    if html-minifier-terser \
-        --collapse-whitespace \
-        --conservative-collapse \
-        --remove-comments \
-        --minify-css true \
-        --minify-js true \
-        "$input" | sponge "$output"; then
-        echo -e "${GREEN}✔ Minified HTML: $input → $output${NC}" >&2
+    if [ $FAIL_COUNT -gt 0 ]; then
+        echo -e "${RED}Archivos con errores: ${FAIL_COUNT}${NC}"
+        while IFS= read -r line; do
+            echo -e "  ${RED}•${NC} $line"
+        done < "$FAIL_FILE"
     else
-        echo -e "${YELLOW}⚠ Falló minificación HTML para '$input'. Copiando original.${NC}" >&2
-        cp "$input" "$output"
+        echo -e "${GREEN}Todos los archivos fueron procesados exitosamente${NC}"
+    fi
+
+    if [ -s "$SUCCESS_FILE" ]; then
+        echo -e "\n${GREEN}Lista de archivos minificados:${NC}"
+        while IFS= read -r line; do
+            echo -e "  ${GREEN}•${NC} $line"
+        done < "$SUCCESS_FILE"
     fi
 }
 
@@ -119,15 +185,31 @@ main() {
     check_dependencies
     local search_dir="${INPUT_DIRECTORY:-.}"
     local files=( $(find "$search_dir" -type f \( -iname '*.html' -o -iname '*.js' -o -iname '*.css' \) | grep -v ".min.") )
+
     if [ "${#files[@]}" -eq 0 ]; then
-        echo -e "${YELLOW}No se encontraron archivos para minificar.${NC}"
+        echo -e "${YELLOW}No se encontraron archivos para minificar.${NC}" >&2
         exit 0
     fi
+
     if command -v parallel >/dev/null 2>&1; then
+        export -f minify_file minify_js minify_css minify_html
+        export INPUT_OVERWRITE INPUT_OUTPUT DRY_RUN
+        export RED GREEN YELLOW BLUE NC SUCCESS_FILE FAIL_FILE
         printf "%s\n" "${files[@]}" | parallel minify_file
     else
         for file in "${files[@]}"; do
-            minify_file "$file"
+            minify_file "$file" || true
         done
     fi
+
+    SUCCESS_COUNT=$(wc -l < "$SUCCESS_FILE" 2>/dev/null | tr -d ' ' || echo 0)
+    FAIL_COUNT=$(wc -l < "$FAIL_FILE" 2>/dev/null | tr -d ' ' || echo 0)
+
+    print_summary
+
+    if [ $FAIL_COUNT -gt 0 ]; then
+        exit 1
+    fi
 }
+
+main
