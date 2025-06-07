@@ -11,7 +11,7 @@ RUN npm install -g \
     esbuild \
     lightningcss \
     minify \
-    html-minifier-terser  # (opcional, para características avanzadas de HTML)
+    html-minifier-terser
 
 RUN chmod +x /entrypoint.sh
 
