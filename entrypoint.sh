@@ -32,7 +32,7 @@ minify_js(){
     local input="$1"
     local output="$2"
 
-    if minify "$input" > "$output" && [ -s "$output" ]; then
+    if terser "$input" -o "$output" --compress --mangle; then
         return 0
     else
         echo "JS minification failed"
