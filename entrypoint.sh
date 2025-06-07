@@ -1,76 +1,91 @@
 #!/bin/bash
 
 minify_file(){
-    local file="$1"
-    local extension="${file##*.}"
-    local filename="${file##*/}"
-    filename="${filename%.*}"
-    local dir="${file%/*}"
-    local output_dir="${INPUT_OUTPUT:-$dir}"
-    local output_path="$output_dir/${filename}.min.${extension}"
-
-    [ "$INPUT_OVERWRITE" == "true" ] && output_path="$file"
-
-    mkdir -p "$output_dir"
-
-    if [ "$INPUT_OVERWRITE" != "true" ] && [ -f "$output_path" ] && [ "$file" -ot "$output_path" ]; then
-        echo "Skipping $file (up to date)"
-        return
+    directory=$1
+    basename=$(basename $directory);
+    extension="${basename##*.}"
+    output="";
+    if [ -z "$INPUT_OUTPUT" ]
+    then
+        output="${directory%/*}/"
+    else
+        mkdir -p $INPUT_OUTPUT
+        output="$INPUT_OUTPUT"
+    fi
+    filename="${basename%.*}"
+    output_path="${output}${filename}.min.${extension}"
+    if [ -f ${output_path} ]
+    then
+        rm ${output_path}
     fi
 
-    case "${extension,,}" in
-        "js")   minify_js "$file" "$output_path" ;;
-        "css")  minify_css "$file" "$output_path" ;;
-        "html") minify_html "$file" "$output_path" ;;
-        *) echo "Skipping unknown extension: $file" ;;
+
+    if [ "$INPUT_OVERWRITE" == "true" ]
+    then
+      output_path=$directory
+    fi
+    extension_lower=$(echo "${extension}" | tr '[:upper:]' '[:lower:]')
+
+    case $extension_lower in
+      "css")
+        minify_css ${directory} ${output_path}
+        ;;
+
+      "js")
+        minify_js ${directory} ${output_path}
+        ;;
+
+      "html")
+        minify_html ${directory} ${output_path}
+        ;;
+      *)
+        echo "Couldn't minify file! (unknown file extension: ${extension})"
+        return 1
     esac
 
-    echo "Minified $file > $output_path"
+    echo "Minified ${directory} > ${output_path}"
 }
 
 minify_js(){
-    local input="$1"
-    local output="$2"
-
-    if terser "$input" -o "$output" --compress --mangle; then
-        return 0
-    else
-        echo "JS minification failed"
-
-        if [ "$input" != "$output" ]; then
-            echo "Copying raw file"
-            cp "$input" "$output"
-        else
-            echo "Input and output are the same file, skipping copy"
-        fi
+    directory=$1
+    output_path=$2
+  	tmp_path="tmp"
+    # This minify package is not really the smartest one. For example, it fails when it encounters top-level await.
+    # To circumvent this, we put the resulting data into a temp file, then check whether that file is not empty.
+    # If it is not empty, we use transfer the temp file into the output file.
+    # If it is empty, we use the non-minified file instead.
+    minify ${directory} | sponge ${tmp_path}
+    if [ -s "${tmp_path}" ]; then
+      cat ${tmp_path} | sponge ${output_path}
+	  else
+      echo "Minification failed, using raw file instead!"
+      cat ${directory} | sponge ${output_path}
     fi
+    rm ${tmp_path}
 }
 
 minify_css(){
-    local input="$1"
-    local output="$2"
-    npx postcss "$input" --use cssnano --no-map > "$output"
+    directory=$1
+    output_path=$2
+    npx postcss ${directory} --use cssnano --no-map | sponge ${output_path}
 }
 
 minify_html(){
-    local input="$1"
-    local output="$2"
-    local tmpfile
-    tmpfile=$(mktemp)
-
-    html-minifier-terser --collapse-whitespace --conservative-collapse --remove-comments --minify-css true --minify-js true "$input" > "$tmpfile"
-
-    if ! head -n 1 "$tmpfile" | grep -iq '^<!DOCTYPE html>'; then
-        sed -i '1i<!DOCTYPE html>' "$tmpfile"
-    fi
-
-    mv "$tmpfile" "$output"
+    directory=$1
+    output_path=$2
+    html-minifier-terser --collapse-whitespace --conservative-collapse --remove-comments --minify-css true --minify-js true ${directory} | sponge ${output_path}
 }
 
-dir="${INPUT_DIRECTORY:-.}"
+if [ -z "$INPUT_DIRECTORY" ]
+then
+    dir="."
+else
+    dir=$INPUT_DIRECTORY
+fi
 
-export -f minify_file minify_js minify_css minify_html
-export INPUT_OUTPUT INPUT_OVERWRITE
-
-find "$dir" -type f \( -iname "*.js" -o -iname "*.css" -o -iname "*.html" \) ! -iname "*.min.*" \
-  | parallel --jobs $(nproc) minify_file {}
+find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) ! -name "*.min.*" | parallel minify_file {}
+    do
+        if [[ "$fname" != *".min."* ]]; then
+            minify_file $fname
+        fi
+    done
