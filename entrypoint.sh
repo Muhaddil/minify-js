@@ -50,7 +50,7 @@ minify_js(){
     local input_file=$1
     local output_path=$2
 
-    esbuild "${input_file}" --minify --outfile="${output_path}" || cp "${input_file}" "${output_path}"
+    esbuild "${input_file}" --minify --outfile="${output_path}" --allow-overwrite || cp "${input_file}" "${output_path}"
 }
 
 minify_css(){
