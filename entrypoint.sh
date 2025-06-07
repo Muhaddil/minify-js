@@ -69,7 +69,7 @@ minify_file() {
             ;;
     esac
 
-    echo -e "${GREEN}✔ Minificado: $filepath → $output_path${NC}"
+    echo -e "${GREEN}✔ Minificado: $filepath → $output_path${NC}" >&2
 }
 
 minify_js() {
@@ -79,8 +79,9 @@ minify_js() {
 
     if minify "$input" > "$tmp_file" && [ -s "$tmp_file" ]; then
         mv "$tmp_file" "$output"
+        echo -e "${GREEN}✔ Minified JS: $input → $output${NC}" >&2
     else
-        echo -e "${YELLOW}⚠ Falló minificación JS para '$input'. Copiando original.${NC}"
+        echo -e "${YELLOW}⚠ Falló minificación JS para '$input'. Copiando original.${NC}" >&2
         cp "$input" "$output"
         rm -f "$tmp_file"
     fi
@@ -89,19 +90,29 @@ minify_js() {
 minify_css() {
     local input="$1"
     local output="$2"
-    npx postcss "$input" --use cssnano --no-map | sponge "$output"
+    if npx postcss "$input" --use cssnano --no-map | sponge "$output"; then
+        echo -e "${GREEN}✔ Minified CSS: $input → $output${NC}" >&2
+    else
+        echo -e "${YELLOW}⚠ Falló minificación CSS para '$input'. Copiando original.${NC}" >&2
+        cp "$input" "$output"
+    fi
 }
 
 minify_html() {
     local input="$1"
     local output="$2"
-    html-minifier-terser \
+    if html-minifier-terser \
         --collapse-whitespace \
         --conservative-collapse \
         --remove-comments \
         --minify-css true \
         --minify-js true \
-        "$input" | sponge "$output"
+        "$input" | sponge "$output"; then
+        echo -e "${GREEN}✔ Minified HTML: $input → $output${NC}" >&2
+    else
+        echo -e "${YELLOW}⚠ Falló minificación HTML para '$input'. Copiando original.${NC}" >&2
+        cp "$input" "$output"
+    fi
 }
 
 main() {
