@@ -86,8 +86,3 @@ fi
 export -f minify_file minify_js minify_css minify_html
 
 find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) ! -name "*.min.*" | parallel -j 4 minify_file {}
-    do
-        if [[ "$fname" != *".min."* ]]; then
-            minify_file $fname
-        fi
-    done
