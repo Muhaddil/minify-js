@@ -55,7 +55,16 @@ minify_css(){
 minify_html(){
     local input="$1"
     local output="$2"
-    html-minifier-terser --collapse-whitespace --conservative-collapse --remove-comments --minify-css true --minify-js true "$input" > "$output"
+    local tmpfile
+    tmpfile=$(mktemp)
+
+    html-minifier-terser --collapse-whitespace --conservative-collapse --remove-comments --minify-css true --minify-js true "$input" > "$tmpfile"
+
+    if ! head -n 1 "$tmpfile" | grep -iq '^<!DOCTYPE html>'; then
+        sed -i '1i<!DOCTYPE html>' "$tmpfile"
+    fi
+
+    mv "$tmpfile" "$output"
 }
 
 dir="${INPUT_DIRECTORY:-.}"
@@ -63,6 +72,5 @@ dir="${INPUT_DIRECTORY:-.}"
 export -f minify_file minify_js minify_css minify_html
 export INPUT_OUTPUT INPUT_OVERWRITE
 
-# Requiere instalar GNU parallel
 find "$dir" -type f \( -iname "*.js" -o -iname "*.css" -o -iname "*.html" \) ! -iname "*.min.*" \
   | parallel --jobs $(nproc) minify_file {}
