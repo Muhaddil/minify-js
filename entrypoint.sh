@@ -31,7 +31,7 @@ trap cleanup EXIT
 
 check_dependencies() {
     local missing=0
-    for cmd in minify postcss cssnano sponge html-minifier-terser; do
+    for cmd in minify postcss sponge html-minifier-terser; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
             echo -e "${RED}Falta la dependencia: $cmd${NC}" >&2
             missing=1
