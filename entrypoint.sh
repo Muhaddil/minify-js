@@ -1,91 +1,122 @@
 #!/bin/bash
 
-minify_file(){
-    directory=$1
-    basename=$(basename $directory);
-    extension="${basename##*.}"
-    output="";
-    if [ -z "$INPUT_OUTPUT" ]
-    then
-        output="${directory%/*}/"
-    else
-        mkdir -p $INPUT_OUTPUT
-        output="$INPUT_OUTPUT"
-    fi
-    filename="${basename%.*}"
-    output_path="${output}${filename}.min.${extension}"
-    if [ -f ${output_path} ]
-    then
-        rm ${output_path}
-    fi
+# Minificador de archivos JS, CSS y HTML
+# Uso:
+#   INPUT_DIRECTORY=src INPUT_OUTPUT=dist INPUT_OVERWRITE=true DRY_RUN=true ./entrypoint.sh
+# Variables de entorno:
+#   INPUT_DIRECTORY   Directorio a buscar archivos (por defecto: .)
+#   INPUT_OUTPUT      Directorio de salida (por defecto: carpeta del archivo)
+#   INPUT_OVERWRITE   true para sobrescribir archivos originales
+#   DRY_RUN           true para solo mostrar acciones sin modificar archivos
 
+set -euo pipefail
+IFS=$'\n\t'
 
-    if [ "$INPUT_OVERWRITE" == "true" ]
-    then
-      output_path=$directory
-    fi
-    extension_lower=$(echo "${extension}" | tr '[:upper:]' '[:lower:]')
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # Sin color
 
-    case $extension_lower in
-      "css")
-        minify_css ${directory} ${output_path}
-        ;;
-
-      "js")
-        minify_js ${directory} ${output_path}
-        ;;
-
-      "html")
-        minify_html ${directory} ${output_path}
-        ;;
-      *)
-        echo "Couldn't minify file! (unknown file extension: ${extension})"
-        return 1
-    esac
-
-    echo "Minified ${directory} > ${output_path}"
-}
-
-minify_js(){
-    directory=$1
-    output_path=$2
-  	tmp_path="tmp"
-    # This minify package is not really the smartest one. For example, it fails when it encounters top-level await.
-    # To circumvent this, we put the resulting data into a temp file, then check whether that file is not empty.
-    # If it is not empty, we use transfer the temp file into the output file.
-    # If it is empty, we use the non-minified file instead.
-    minify ${directory} | sponge ${tmp_path}
-    if [ -s "${tmp_path}" ]; then
-      cat ${tmp_path} | sponge ${output_path}
-	  else
-      echo "Minification failed, using raw file instead!"
-      cat ${directory} | sponge ${output_path}
-    fi
-    rm ${tmp_path}
-}
-
-minify_css(){
-    directory=$1
-    output_path=$2
-    npx postcss ${directory} --use cssnano --no-map | sponge ${output_path}
-}
-
-minify_html(){
-    directory=$1
-    output_path=$2
-    html-minifier-terser --collapse-whitespace --conservative-collapse --remove-comments --minify-css true --minify-js true ${directory} | sponge ${output_path}
-}
-
-if [ -z "$INPUT_DIRECTORY" ]
-then
-    dir="."
-else
-    dir=$INPUT_DIRECTORY
-fi
-
-find ${dir} -type f \( -iname \*.html -o -iname \*.js -o -iname \*.css \) | while read fname
-    do
-        if [[ "$fname" != *".min."* ]]; then
-            minify_file $fname
+check_dependencies() {
+    local missing=0
+    for cmd in minify npx postcss cssnano sponge html-minifier-terser; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            echo -e "${RED}Falta la dependencia: $cmd${NC}"
+            missing=1
         fi
     done
+    if [ "$missing" -eq 1 ]; then
+        echo -e "${RED}Instala las dependencias requeridas y vuelve a intentarlo.${NC}"
+        exit 1
+    fi
+}
+
+minify_file() {
+    local filepath="$1"
+    local filename=$(basename "$filepath")
+    local extension="${filename##*.}"
+    local name="${filename%.*}"
+    local output_dir="${INPUT_OUTPUT:-${filepath%/*}}"
+    local output_path="${output_dir}/${name}.min.${extension,,}"
+
+    mkdir -p "$output_dir"
+
+    if [ "${INPUT_OVERWRITE:-false}" = "true" ]; then
+        output_path="$filepath"
+    elif [ -f "$output_path" ]; then
+        rm -f "$output_path"
+    fi
+
+    if [ "${DRY_RUN:-false}" = "true" ]; then
+        echo -e "${BLUE}[DRY RUN]${NC} Minificaría: $filepath → $output_path"
+        return 0
+    fi
+
+    case "${extension,,}" in
+        css)
+            minify_css "$filepath" "$output_path"
+            ;;
+        js)
+            minify_js "$filepath" "$output_path"
+            ;;
+        html)
+            minify_html "$filepath" "$output_path"
+            ;;
+        *)
+            echo -e "${YELLOW}Omitiendo: Extensión no soportada '$extension'${NC}" >&2
+            return 1
+            ;;
+    esac
+
+    echo -e "${GREEN}✔ Minificado: $filepath → $output_path${NC}"
+}
+
+minify_js() {
+    local input="$1"
+    local output="$2"
+    local tmp_file=$(mktemp)
+
+    if minify "$input" > "$tmp_file" && [ -s "$tmp_file" ]; then
+        mv "$tmp_file" "$output"
+    else
+        echo -e "${YELLOW}⚠ Falló minificación JS para '$input'. Copiando original.${NC}"
+        cp "$input" "$output"
+        rm -f "$tmp_file"
+    fi
+}
+
+minify_css() {
+    local input="$1"
+    local output="$2"
+    npx postcss "$input" --use cssnano --no-map | sponge "$output"
+}
+
+minify_html() {
+    local input="$1"
+    local output="$2"
+    html-minifier-terser \
+        --collapse-whitespace \
+        --conservative-collapse \
+        --remove-comments \
+        --minify-css true \
+        --minify-js true \
+        "$input" | sponge "$output"
+}
+
+main() {
+    check_dependencies
+    local search_dir="${INPUT_DIRECTORY:-.}"
+    local files=( $(find "$search_dir" -type f \( -iname '*.html' -o -iname '*.js' -o -iname '*.css' \) | grep -v ".min.") )
+    if [ "${#files[@]}" -eq 0 ]; then
+        echo -e "${YELLOW}No se encontraron archivos para minificar.${NC}"
+        exit 0
+    fi
+    if command -v parallel >/dev/null 2>&1; then
+        printf "%s\n" "${files[@]}" | parallel minify_file
+    else
+        for file in "${files[@]}"; do
+            minify_file "$file"
+        done
+    fi
+}
