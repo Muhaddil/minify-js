@@ -35,8 +35,14 @@ minify_js(){
     if minify "$input" > "$output" && [ -s "$output" ]; then
         return 0
     else
-        echo "JS minification failed, copying raw file"
-        cp "$input" "$output"
+        echo "JS minification failed"
+
+        if [ "$input" != "$output" ]; then
+            echo "Copying raw file"
+            cp "$input" "$output"
+        else
+            echo "Input and output are the same file, skipping copy"
+        fi
     fi
 }
 
