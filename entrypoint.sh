@@ -13,8 +13,10 @@ minify_file(){
 
     mkdir -p "$output_dir"
 
-    # Skip if already exists and overwrite not requested
-    [ "$INPUT_OVERWRITE" != "true" ] && [ -f "$output_path" ] && return
+    if [ "$INPUT_OVERWRITE" != "true" ] && [ -f "$output_path" ] && [ "$file" -ot "$output_path" ]; then
+        echo "Skipping $file (up to date)"
+        return
+    fi
 
     case "${extension,,}" in
         "js")   minify_js "$file" "$output_path" ;;
@@ -29,13 +31,12 @@ minify_file(){
 minify_js(){
     local input="$1"
     local output="$2"
-    tmp=$(mktemp)
-    if minify "$input" > "$tmp" && [ -s "$tmp" ]; then
-        mv "$tmp" "$output"
+
+    if minify "$input" > "$output" && [ -s "$output" ]; then
+        return 0
     else
         echo "JS minification failed, copying raw file"
         cp "$input" "$output"
-        rm -f "$tmp"
     fi
 }
 
@@ -56,5 +57,6 @@ dir="${INPUT_DIRECTORY:-.}"
 export -f minify_file minify_js minify_css minify_html
 export INPUT_OUTPUT INPUT_OVERWRITE
 
-find "$dir" -type f \( -iname "*.html" -o -iname "*.js" -o -iname "*.css" \) ! -iname "*.min.*" \
-    | xargs -P "$(nproc)" -I {} bash -c 'minify_file "$@"' _ {}
+# Requiere instalar GNU parallel
+find "$dir" -type f \( -iname "*.js" -o -iname "*.css" -o -iname "*.html" \) ! -iname "*.min.*" \
+  | parallel --jobs $(nproc) minify_file {}
