@@ -31,7 +31,7 @@ minify_file(){
         minify_css ${directory} ${output_path}
         ;;
 
-      "js")
+      "js"|"ts")
         minify_js ${directory} ${output_path}
         ;;
 
