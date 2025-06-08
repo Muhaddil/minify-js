@@ -10,6 +10,7 @@ RUN npm install -g \
     terser \
     esbuild \
     lightningcss \
+    lightningcss-cli \
     minify \
     html-minifier-terser
 
