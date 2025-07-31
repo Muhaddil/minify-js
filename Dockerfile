@@ -2,9 +2,8 @@ FROM node:22-alpine
 
 COPY entrypoint.sh /entrypoint.sh
 
-RUN apt-get update && \
-    apt-get install -y moreutils parallel && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update && \
+    apk add --no-cache moreutils parallel
 
 RUN npm install -g \
     terser \
