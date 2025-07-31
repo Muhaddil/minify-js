@@ -1,10 +1,11 @@
-FROM node:22-alpine
+FROM node:22
 
 COPY entrypoint.sh /entrypoint.sh
 
-RUN apk update && \
-    apk add --no-cache moreutils parallel
-
+RUN apt-get update && \
+    apt-get install -y moreutils parallel && \
+    rm -rf /var/lib/apt/lists/*
+    
 RUN npm install -g \
     terser \
     esbuild \
